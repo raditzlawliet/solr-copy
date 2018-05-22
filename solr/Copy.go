@@ -111,6 +111,7 @@ func Copy(conf SolrConfig) {
 				docClean, _ = json.Marshal(ii)
 
 				// posting data
+				log.Debugf("Posting Data to %v", TargetSolrUrlPost)
 				resp2, err := client.Post(TargetSolrUrlPost, "application/json", bytes.NewBuffer(docClean))
 				if err != nil {
 					log.Fatal("fail post", err.Error())
@@ -152,6 +153,7 @@ func Copy(conf SolrConfig) {
 	}
 	// commit
 	if !ReadOnly {
+		log.Debugf("Commit Data: %v", TargetSolrUrlCommit)
 		client := http.Client{}
 		resp, err := client.Get(TargetSolrUrlCommit)
 		log.Debug(TargetSolrUrlCommit)

@@ -61,7 +61,7 @@ func main() {
 			SourceCursorMark: "*",
 			SourceRows:       10000,
 			Max:              -1,
-			ReadOnly:         true,
+			ReadOnly:         false,
 			DataProcess: func(data map[string]interface{}) map[string]interface{} {
 				// log.Debug(data)
 				docType := data["type"]
