@@ -60,9 +60,10 @@ func main() {
 			SourceQuery:      "*:*&sort=id+asc",
 			SourceCursorMark: "*",
 			SourceRows:       10000,
-			Max:              1,
+			Max:              -1,
 			ReadOnly:         true,
 			DataProcess: func(data map[string]interface{}) map[string]interface{} {
+				// log.Debug(data)
 				docType := data["type"]
 				artistSkw := map[string]string{}
 				albumSkw := map[string]string{}
@@ -72,6 +73,7 @@ func main() {
 				if docType == "artist" || docType == "album" || docType == "song" {
 					if _, ok := data["artist_name_origin"]; ok {
 						name := data["artist_name_origin"].(string)
+						name = strings.TrimSpace(name)
 						cleanName := CleanString(name)
 						artistSkw[name] = name
 						artistSkw[cleanName] = cleanName
@@ -79,13 +81,25 @@ func main() {
 						searchKeyword[cleanName] = cleanName
 					}
 					if _, ok := data["artist_name"]; ok {
-						name := data["artist_name"].(string)
-						cleanName := CleanString(name)
-						artistSkw[name] = name
-						artistSkw[cleanName] = cleanName
-						searchKeyword[name] = name
-						searchKeyword[cleanName] = cleanName
+						if name := GetNameFromSlice(data["artist_name"]); name != "" {
+							cleanName := CleanString(name)
+							artistSkw[name] = name
+							artistSkw[cleanName] = cleanName
+							searchKeyword[name] = name
+							searchKeyword[cleanName] = cleanName
+							data["artist_name"] = name
+						}
 					}
+					// re-index if exist
+					// if _, ok := data["artist_search_keyword"]; ok {
+					// 	if name := GetNameFromSlice(data["artist_search_keyword"]); name != "" {
+					// 		cleanName := CleanString(name)
+					// 		artistSkw[name] = name
+					// 		artistSkw[cleanName] = cleanName
+					// 		searchKeyword[name] = name
+					// 		searchKeyword[cleanName] = cleanName
+					// 	}
+					// }
 
 					_artistSkw := make([]string, 0)
 					for _, v := range artistSkw {
@@ -96,21 +110,34 @@ func main() {
 
 				if docType == "album" || docType == "song" {
 					if _, ok := data["album_name_origin"]; ok {
-						name := data["album_name_origin"].(string)
-						cleanName := CleanString(name)
-						albumSkw[name] = name
-						albumSkw[cleanName] = cleanName
-						searchKeyword[name] = name
-						searchKeyword[cleanName] = cleanName
+						if name, ok2 := data["album_name_origin"].(string); ok2 {
+							name = strings.TrimSpace(name)
+							cleanName := CleanString(name)
+							albumSkw[name] = name
+							albumSkw[cleanName] = cleanName
+							searchKeyword[name] = name
+							searchKeyword[cleanName] = cleanName
+						}
 					}
 					if _, ok := data["album_name"]; ok {
-						name := data["album_name"].(string)
-						cleanName := CleanString(name)
-						albumSkw[name] = name
-						albumSkw[cleanName] = cleanName
-						searchKeyword[name] = name
-						searchKeyword[cleanName] = cleanName
+						if name := GetNameFromSlice(data["artist_search_keyword"]); name != "" {
+							cleanName := CleanString(name)
+							albumSkw[name] = name
+							albumSkw[cleanName] = cleanName
+							searchKeyword[name] = name
+							searchKeyword[cleanName] = cleanName
+							data["album_name"] = name
+						}
 					}
+					// if _, ok := data["album_search_keyword"]; ok {
+					// 	if name := GetNameFromSlice(data["album_search_keyword"]); name != "" {
+					// 		cleanName := CleanString(name)
+					// 		albumSkw[name] = name
+					// 		albumSkw[cleanName] = cleanName
+					// 		searchKeyword[name] = name
+					// 		searchKeyword[cleanName] = cleanName
+					// 	}
+					// }
 
 					_albumSkw := make([]string, 0)
 					for _, v := range albumSkw {
@@ -122,6 +149,7 @@ func main() {
 				if docType == "song" {
 					if _, ok := data["song_name_origin"]; ok {
 						name := data["song_name_origin"].(string)
+						name = strings.TrimSpace(name)
 						cleanName := CleanString(name)
 						songSkw[name] = name
 						songSkw[cleanName] = cleanName
@@ -129,13 +157,24 @@ func main() {
 						searchKeyword[cleanName] = cleanName
 					}
 					if _, ok := data["song_name"]; ok {
-						name := data["song_name"].(string)
-						cleanName := CleanString(name)
-						songSkw[name] = name
-						songSkw[cleanName] = cleanName
-						searchKeyword[name] = name
-						searchKeyword[cleanName] = cleanName
+						if name := GetNameFromSlice(data["song_name"]); name != "" {
+							cleanName := CleanString(name)
+							songSkw[name] = name
+							songSkw[cleanName] = cleanName
+							searchKeyword[name] = name
+							searchKeyword[cleanName] = cleanName
+							data["song_name"] = name
+						}
 					}
+					// if _, ok := data["song_search_keyword"]; ok {
+					// 	if name := GetNameFromSlice(data["song_search_keyword"]); name != "" {
+					// 		cleanName := CleanString(name)
+					// 		songSkw[name] = name
+					// 		songSkw[cleanName] = cleanName
+					// 		searchKeyword[name] = name
+					// 		searchKeyword[cleanName] = cleanName
+					// 	}
+					// }
 
 					_songSkw := make([]string, 0)
 					for _, v := range songSkw {
@@ -153,6 +192,7 @@ func main() {
 				if InsertNewData {
 					delete(data, "id")
 				}
+				// log.Debugf("%v : %v", data["search_keyword"], len(data["search_keyword"].([]string)))
 				return data
 			},
 		}
@@ -174,6 +214,22 @@ func CleanString(input string) string {
 		}
 	}
 	return strings.TrimSpace(buff.String())
+}
+
+func GetNameFromSlice(i interface{}) string {
+	name := ""
+	if iname, ok2 := i.([]interface{}); ok2 {
+		if len(iname) > 0 {
+			name = iname[0].(string)
+			name = strings.TrimSpace(name)
+		}
+	} else if iname, ok2 := i.([]string); ok2 {
+		if len(iname) > 0 {
+			name = iname[0]
+			name = strings.TrimSpace(name)
+		}
+	}
+	return name
 }
 
 func InitLogger() {
