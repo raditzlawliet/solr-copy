@@ -30,9 +30,9 @@ func Copy(conf SolrConfig) {
 	SourceCursorMark := conf.SourceCursorMark
 	SourceRows := conf.SourceRows
 	Max := conf.Max
-	DataProcess := conf.DataProcess
+	DataProcessFunc := conf.DataProcessFunc
 
-	ReadOnly := conf.ReadOnly
+	CommitAfterFinish := conf.CommitAfterFinish
 
 	// solr url
 	TargetSolrUrlPost := (fmt.Sprintf("%s%s/update/json/docs", TargetHost, Target))
@@ -89,24 +89,26 @@ func Copy(conf SolrConfig) {
 				return true
 			}
 			docRes := resMap["response"].(map[string]interface{})
+			resNumFound := docRes["numFound"].(int64)
 			ii := docRes["docs"].([]interface{})
 
 			log.WithFields(log.Fields{
-				"length": len(ii),
+				"response.numFound": resNumFound,
+				"length":            len(ii),
 			}).Debug("Document Received")
 			TotalData += len(ii)
 
 			// posting data
 			for k, doc := range ii {
 				docMap := doc.(map[string]interface{})
-				delete(docMap, "_version_")
+				delete(docMap, "_version_") // remove version
 
-				docMap = DataProcess(docMap)
+				docMap = DataProcessFunc(docMap)
 
 				ii[k] = docMap
 			}
 
-			if !ReadOnly {
+			if !CommitAfterFinish {
 				docClean := []byte{}
 				docClean, _ = json.Marshal(ii)
 
@@ -132,8 +134,8 @@ func Copy(conf SolrConfig) {
 			SourceCursorMark = resMap["nextCursorMark"].(string)
 
 			log.WithFields(log.Fields{
-				"cursor":    SourceCursorMark,
-				"TotalData": TotalData,
+				"cursor":          SourceCursorMark,
+				"TotalDataFetchs": TotalData,
 			}).Debug("Cursor Mark")
 
 			if len(ii) < SourceRows {
@@ -152,7 +154,7 @@ func Copy(conf SolrConfig) {
 		}
 	}
 	// commit
-	if !ReadOnly {
+	if !CommitAfterFinish {
 		log.Debugf("Commit Data: %v", TargetSolrUrlCommit)
 		client := http.Client{}
 		resp, err := client.Get(TargetSolrUrlCommit)

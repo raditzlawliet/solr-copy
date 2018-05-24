@@ -51,18 +51,18 @@ func main() {
 
 	// sample running lib
 	{
-		InsertNewData := false
+		// InsertNewData := false
 		sConf := model.SolrConfig{
-			SourceHost:       "http://192.168.70.220:8983/solr/",
-			TargetHost:       "http://192.168.70.220:8983/solr/",
-			Source:           "song3",
-			Target:           "song",
-			SourceQuery:      "*:*&sort=id+asc",
-			SourceCursorMark: "*",
-			SourceRows:       10000,
-			Max:              -1,
-			ReadOnly:         false,
-			DataProcess: func(data map[string]interface{}) map[string]interface{} {
+			SourceHost:        "http://192.168.70.220:8983/solr/",
+			TargetHost:        "http://192.168.70.220:8983/solr/",
+			Source:            "song3",
+			Target:            "song",
+			SourceQuery:       "*:*&sort=id+asc",
+			SourceCursorMark:  "*",
+			SourceRows:        10000,
+			Max:               -1,
+			CommitAfterFinish: false, // solr only
+			DataProcessFunc: func(data map[string]interface{}) map[string]interface{} {
 				// log.Debug(data)
 				docType := data["type"]
 				artistSkw := map[string]string{}
@@ -182,16 +182,37 @@ func main() {
 					}
 					data["song_search_keyword"] = _songSkw
 				}
-				// insert old search_keyword
+
+				if docType == "pl" {
+					// if inames, ok2 := data["search_keyword"].([]interface{}); ok2 {
+					// 	for _, iname := range inames {
+					// 		name := strings.TrimSpace(iname.(string))
+					// 		searchKeyword[name] = name
+					// 	}
+					// } else if inames, ok2 := data["search_keyword"].([]string); ok2 {
+					// 	for _, iname := range inames {
+					// 		name := strings.TrimSpace(iname)
+					// 		searchKeyword[name] = name
+					// 	}
+					// }
+					// // convert to slice
+					// _searchKeyword := make([]string, 0)
+					// for _, v := range searchKeyword {
+					// 	_searchKeyword = append(_searchKeyword, v)
+					// }
+					// data["search_keyword"] = _searchKeyword
+				}
+
+				// convert to slice
 				_searchKeyword := make([]string, 0)
 				for _, v := range searchKeyword {
 					_searchKeyword = append(_searchKeyword, v)
 				}
 				data["search_keyword"] = _searchKeyword
 
-				if InsertNewData {
-					delete(data, "id")
-				}
+				// if InsertNewData {
+				// 	delete(data, "id")
+				// }
 				// log.Debugf("%v : %v", data["search_keyword"], len(data["search_keyword"].([]string)))
 				return data
 			},
