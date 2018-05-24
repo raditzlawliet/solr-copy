@@ -89,7 +89,7 @@ func Copy(conf SolrConfig) {
 				return true
 			}
 			docRes := resMap["response"].(map[string]interface{})
-			resNumFound := docRes["numFound"].(int64)
+			resNumFound := docRes["numFound"].(float64)
 			ii := docRes["docs"].([]interface{})
 
 			log.WithFields(log.Fields{
