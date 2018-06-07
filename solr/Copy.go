@@ -33,6 +33,7 @@ func Copy(conf SolrConfig) {
 	DataProcessFunc := conf.DataProcessFunc
 
 	CommitAfterFinish := conf.CommitAfterFinish
+	PostingData := conf.PostingData
 
 	// solr url
 	TargetSolrUrlPost := (fmt.Sprintf("%s%s/update/json/docs", TargetHost, Target))
@@ -108,7 +109,7 @@ func Copy(conf SolrConfig) {
 				ii[k] = docMap
 			}
 
-			if !CommitAfterFinish {
+			if PostingData {
 				docClean := []byte{}
 				docClean, _ = json.Marshal(ii)
 
@@ -138,7 +139,8 @@ func Copy(conf SolrConfig) {
 				"TotalDataFetchs": TotalData,
 			}).Debug("Cursor Mark")
 
-			if len(ii) < SourceRows {
+			// sometime data not return as expected rows, but return cursor
+			if len(ii) <= 0 && SourceCursorMark != "" {
 				return true
 			}
 
@@ -154,7 +156,7 @@ func Copy(conf SolrConfig) {
 		}
 	}
 	// commit
-	if !CommitAfterFinish {
+	if CommitAfterFinish {
 		log.Debugf("Commit Data: %v", TargetSolrUrlCommit)
 		client := http.Client{}
 		resp, err := client.Get(TargetSolrUrlCommit)

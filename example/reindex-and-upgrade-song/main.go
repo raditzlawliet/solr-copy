@@ -2,8 +2,10 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	"strings"
 
+	"github.com/araddon/dateparse"
 	colorable "github.com/mattn/go-colorable"
 	"github.com/raditzlawliet/solr-copy/model"
 	"github.com/raditzlawliet/solr-copy/solr"
@@ -54,14 +56,15 @@ func main() {
 		// InsertNewData := false
 		sConf := model.SolrConfig{
 			SourceHost:        "http://192.168.70.220:8983/solr/",
-			TargetHost:        "http://192.168.70.220:8983/solr/",
+			TargetHost:        "http://192.168.70.220:18983/solr/",
 			Source:            "song3",
 			Target:            "song",
 			SourceQuery:       "*:*&sort=id+asc",
 			SourceCursorMark:  "*",
 			SourceRows:        10000,
 			Max:               -1,
-			CommitAfterFinish: false, // solr only
+			CommitAfterFinish: true, // solr only
+			PostingData:       true, // solr only
 			DataProcessFunc: func(data map[string]interface{}) map[string]interface{} {
 				// log.Debug(data)
 				docType := data["type"]
@@ -184,23 +187,23 @@ func main() {
 				}
 
 				if docType == "pl" {
-					// if inames, ok2 := data["search_keyword"].([]interface{}); ok2 {
-					// 	for _, iname := range inames {
-					// 		name := strings.TrimSpace(iname.(string))
-					// 		searchKeyword[name] = name
-					// 	}
-					// } else if inames, ok2 := data["search_keyword"].([]string); ok2 {
-					// 	for _, iname := range inames {
-					// 		name := strings.TrimSpace(iname)
-					// 		searchKeyword[name] = name
-					// 	}
-					// }
-					// // convert to slice
-					// _searchKeyword := make([]string, 0)
-					// for _, v := range searchKeyword {
-					// 	_searchKeyword = append(_searchKeyword, v)
-					// }
-					// data["search_keyword"] = _searchKeyword
+					if inames, ok2 := data["search_keyword"].([]interface{}); ok2 {
+						for _, iname := range inames {
+							name := strings.TrimSpace(iname.(string))
+							searchKeyword[name] = name
+						}
+					} else if inames, ok2 := data["search_keyword"].([]string); ok2 {
+						for _, iname := range inames {
+							name := strings.TrimSpace(iname)
+							searchKeyword[name] = name
+						}
+					}
+					// convert to slice
+					_searchKeyword := make([]string, 0)
+					for _, v := range searchKeyword {
+						_searchKeyword = append(_searchKeyword, v)
+					}
+					data["search_keyword"] = _searchKeyword
 				}
 
 				// convert to slice
@@ -209,6 +212,17 @@ func main() {
 					_searchKeyword = append(_searchKeyword, v)
 				}
 				data["search_keyword"] = _searchKeyword
+
+				// rewrite string to string date format solr
+				if _, ok := data["reg_date"]; ok {
+					data["reg_date"] = parseSolrDateFormat(data["reg_date"].(string))
+				}
+				if _, ok := data["upd_date"]; ok {
+					data["upd_date"] = parseSolrDateFormat(data["upd_date"].(string))
+				}
+				if _, ok := data["album_reg_date"]; ok {
+					data["album_reg_date"] = parseSolrDateFormat(data["album_reg_date"].(string))
+				}
 
 				// if InsertNewData {
 				// 	delete(data, "id")
@@ -220,6 +234,17 @@ func main() {
 		solr.Copy(sConf)
 	}
 
+}
+
+func parseSolrDateFormat(_date string) string {
+	t, err := dateparse.ParseLocal(_date)
+	if err != nil {
+		fmt.Println(err.Error())
+		return _date
+	} else {
+		format := t.Format("2006-01-02 15:04:05")
+		return format
+	}
 }
 
 func CleanString(input string) string {
