@@ -58,20 +58,31 @@ func main() {
 			SourceHost:        "http://192.168.70.220:8983/solr/",
 			TargetHost:        "http://192.168.70.220:18983/solr/",
 			Source:            "song3",
-			Target:            "song",
+			Target:            "song_c",
 			SourceQuery:       "*:*&sort=id+asc",
 			SourceCursorMark:  "*",
 			SourceRows:        10000,
-			Max:               -1,
+			Max:               500000,
 			CommitAfterFinish: true, // solr only
 			PostingData:       true, // solr only
-			DataProcessFunc: func(data map[string]interface{}) map[string]interface{} {
+			DataProcessFunc: func(data map[string]interface{}) (map[string]interface{}, bool, bool) {
 				// log.Debug(data)
 				docType := data["type"]
+
+				// remove other type
+				if docType == "album_properties" || docType == "song_properties" || docType == "artist_properties" {
+					return nil, false, false
+				}
+
 				artistSkw := map[string]string{}
 				albumSkw := map[string]string{}
 				songSkw := map[string]string{}
 				searchKeyword := map[string]string{}
+
+				delete(data, "artist_search_keyword")
+				delete(data, "album_search_keyword")
+				delete(data, "song_search_keyword")
+				delete(data, "search_keyword")
 
 				if docType == "artist" || docType == "album" || docType == "song" {
 					if _, ok := data["artist_name_origin"]; ok {
@@ -108,7 +119,7 @@ func main() {
 					for _, v := range artistSkw {
 						_artistSkw = append(_artistSkw, v)
 					}
-					data["song_search_keyword"] = _artistSkw
+					data["artist_search_keyword"] = _artistSkw
 				}
 
 				if docType == "album" || docType == "song" {
@@ -228,7 +239,9 @@ func main() {
 				// 	delete(data, "id")
 				// }
 				// log.Debugf("%v : %v", data["search_keyword"], len(data["search_keyword"].([]string)))
-				return data
+				removeVersion := true
+				insert := true
+				return data, removeVersion, insert
 			},
 		}
 		solr.Copy(sConf)

@@ -14,6 +14,7 @@ import (
 )
 
 func Copy(conf SolrConfig) {
+	CopyID := conf.ID
 	SourceHost := conf.SourceHost
 	TargetHost := conf.TargetHost
 	Source := conf.Source
@@ -58,7 +59,7 @@ func Copy(conf SolrConfig) {
 
 			client := http.Client{}
 			SourceSolrUrl := (fmt.Sprintf("%s%s/select?q=%s&rows=%v&wt=json&cursorMark=%s", SourceHost, Source, SourceQuery, rowToGet, SourceCursorMark))
-			log.Debugf("Getting Data from %v", SourceSolrUrl)
+			log.Infof("[%v] Getting Data from %v", CopyID, SourceSolrUrl)
 			resp, err := client.Get(SourceSolrUrl)
 			if err != nil {
 				log.Error(err.Error())
@@ -67,7 +68,7 @@ func Copy(conf SolrConfig) {
 			defer resp.Body.Close()
 
 			if resp.StatusCode != 200 {
-				log.Errorf("Error status %v", resp.StatusCode)
+				log.Errorf("[%v] Error status %v", CopyID, resp.StatusCode)
 				res, err := ioutil.ReadAll(resp.Body)
 				if err != nil {
 					log.Debug(err.Error())
@@ -85,39 +86,51 @@ func Copy(conf SolrConfig) {
 			resMap := map[string]interface{}{}
 			err = json.Unmarshal(res, &resMap)
 			if err != nil {
-				log.Errorf("error unmarshal %v", err.Error())
+				log.Errorf("[%v] error unmarshal %v", CopyID, err.Error())
 				log.Debug(string(res))
 				return true
 			}
 			docRes := resMap["response"].(map[string]interface{})
 			resNumFound := docRes["numFound"].(float64)
-			ii := docRes["docs"].([]interface{})
+			iDocs := docRes["docs"].([]interface{})
+
+			SourceCursorMark = resMap["nextCursorMark"].(string)
 
 			log.WithFields(log.Fields{
+				"length":            len(iDocs),
+				"TotalDataFetchs":   TotalData,
 				"response.numFound": resNumFound,
-				"length":            len(ii),
-			}).Debug("Document Received")
-			TotalData += len(ii)
+				"cursor":            SourceCursorMark,
+			}).Infof("[%v] Document Received", CopyID)
+			TotalData += len(iDocs)
 
-			// posting data
-			for k, doc := range ii {
+			// process data
+			iNewDocs := []interface{}{}
+			for _, doc := range iDocs {
 				docMap := doc.(map[string]interface{})
-				delete(docMap, "_version_") // remove version
+				docMap, removeVersion, insert := DataProcessFunc(docMap)
 
-				docMap = DataProcessFunc(docMap)
+				if removeVersion {
+					delete(docMap, "_version_") // remove version
+				}
 
-				ii[k] = docMap
+				if insert {
+					iNewDocs = append(iNewDocs, docMap)
+				}
 			}
 
+			// posting data
 			if PostingData {
 				docClean := []byte{}
-				docClean, _ = json.Marshal(ii)
+				docClean, _ = json.Marshal(iNewDocs)
 
-				// posting data
-				log.Debugf("Posting Data to %v", TargetSolrUrlPost)
+				log.WithFields(log.Fields{
+					"length": len(iNewDocs),
+				}).Debugf("[%v] Posting Data to %v", CopyID, TargetSolrUrlPost)
+
 				resp2, err := client.Post(TargetSolrUrlPost, "application/json", bytes.NewBuffer(docClean))
 				if err != nil {
-					log.Fatal("fail post", err.Error())
+					log.Fatalf("[%v] fail post", CopyID, err.Error())
 					os.Exit(1)
 				}
 
@@ -132,15 +145,13 @@ func Copy(conf SolrConfig) {
 				// end posting data
 			}
 
-			SourceCursorMark = resMap["nextCursorMark"].(string)
-
-			log.WithFields(log.Fields{
-				"cursor":          SourceCursorMark,
-				"TotalDataFetchs": TotalData,
-			}).Debug("Cursor Mark")
+			// log.WithFields(log.Fields{
+			// 	"cursor":          SourceCursorMark,
+			// 	"TotalDataFetchs": TotalData,
+			// }).Infof("[%v] Cursor Mark", CopyID)
 
 			// sometime data not return as expected rows, but return cursor
-			if len(ii) <= 0 && SourceCursorMark != "" {
+			if len(iDocs) <= 0 && SourceCursorMark != "" {
 				return true
 			}
 
@@ -157,7 +168,7 @@ func Copy(conf SolrConfig) {
 	}
 	// commit
 	if CommitAfterFinish {
-		log.Debugf("Commit Data: %v", TargetSolrUrlCommit)
+		log.Infof("[%v] Commit Data: %v", CopyID, TargetSolrUrlCommit)
 		client := http.Client{}
 		resp, err := client.Get(TargetSolrUrlCommit)
 		log.Debug(TargetSolrUrlCommit)
@@ -166,7 +177,7 @@ func Copy(conf SolrConfig) {
 			return
 		}
 		if resp.StatusCode != 200 {
-			log.Errorf("Error status %v", resp.StatusCode)
+			log.Errorf("[%v] Error status %v", CopyID, resp.StatusCode)
 			res, err := ioutil.ReadAll(resp.Body)
 			if err != nil {
 				log.Debug(err.Error())
@@ -187,9 +198,9 @@ func Copy(conf SolrConfig) {
 		err = json.Unmarshal(res, &resMap)
 
 		log.Debug(resMap)
-		log.Info("Commit Target Solr OK")
+		log.Infof("[%v] Commit Target Solr OK", CopyID)
 	}
 
-	log.Info("=== Done === ")
+	log.Infof("[%v] === Done === ", CopyID)
 
 }
