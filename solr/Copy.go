@@ -59,7 +59,9 @@ func Copy(conf SolrConfig) {
 
 			client := http.Client{}
 			SourceSolrUrl := (fmt.Sprintf("%s%s/select?q=%s&rows=%v&wt=json&cursorMark=%s", SourceHost, Source, SourceQuery, rowToGet, SourceCursorMark))
-			log.Infof("[%v] Getting Data from %v", CopyID, SourceSolrUrl)
+			if conf.ShowLog {
+				log.Infof("[%v] Getting Data from %v", CopyID, SourceSolrUrl)
+			}
 			resp, err := client.Get(SourceSolrUrl)
 			if err != nil {
 				log.Error(err.Error())
@@ -87,7 +89,6 @@ func Copy(conf SolrConfig) {
 			err = json.Unmarshal(res, &resMap)
 			if err != nil {
 				log.Errorf("[%v] error unmarshal %v", CopyID, err.Error())
-				log.Debug(string(res))
 				return true
 			}
 			docRes := resMap["response"].(map[string]interface{})
@@ -96,13 +97,16 @@ func Copy(conf SolrConfig) {
 
 			SourceCursorMark = resMap["nextCursorMark"].(string)
 
-			log.WithFields(log.Fields{
-				"length":            len(iDocs),
-				"TotalDataFetchs":   TotalData,
-				"response.numFound": resNumFound,
-				"cursor":            SourceCursorMark,
-			}).Infof("[%v] Document Received", CopyID)
 			TotalData += len(iDocs)
+
+			if conf.ShowLog {
+				log.WithFields(log.Fields{
+					"length":            len(iDocs),
+					"TotalDataFetchs":   TotalData,
+					"response.numFound": resNumFound,
+					"cursor":            SourceCursorMark,
+				}).Infof("[%v] Document Received", CopyID)
+			}
 
 			// process data
 			iNewDocs := []interface{}{}
@@ -124,9 +128,11 @@ func Copy(conf SolrConfig) {
 				docClean := []byte{}
 				docClean, _ = json.Marshal(iNewDocs)
 
-				log.WithFields(log.Fields{
-					"length": len(iNewDocs),
-				}).Debugf("[%v] Posting Data to %v", CopyID, TargetSolrUrlPost)
+				if conf.ShowLog {
+					log.WithFields(log.Fields{
+						"length": len(iNewDocs),
+					}).Infof("[%v] Posting Data to %v", CopyID, TargetSolrUrlPost)
+				}
 
 				resp2, err := client.Post(TargetSolrUrlPost, "application/json", bytes.NewBuffer(docClean))
 				if err != nil {
@@ -168,7 +174,9 @@ func Copy(conf SolrConfig) {
 	}
 	// commit
 	if CommitAfterFinish {
-		log.Infof("[%v] Commit Data: %v", CopyID, TargetSolrUrlCommit)
+		if conf.ShowLog {
+			log.Infof("[%v] Commit Data: %v", CopyID, TargetSolrUrlCommit)
+		}
 		client := http.Client{}
 		resp, err := client.Get(TargetSolrUrlCommit)
 		log.Debug(TargetSolrUrlCommit)
@@ -197,10 +205,13 @@ func Copy(conf SolrConfig) {
 		resMap := map[string]interface{}{}
 		err = json.Unmarshal(res, &resMap)
 
-		log.Debug(resMap)
-		log.Infof("[%v] Commit Target Solr OK", CopyID)
+		if conf.ShowLog {
+			log.Infof("[%v] Commit Target Solr OK", CopyID)
+		}
 	}
 
-	log.Infof("[%v] === Done === ", CopyID)
+	if conf.ShowLog {
+		log.Infof("[%v] === Done === ", CopyID)
+	}
 
 }

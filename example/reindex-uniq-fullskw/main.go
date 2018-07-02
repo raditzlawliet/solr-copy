@@ -3,6 +3,8 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"os"
+	"runtime/trace"
 	"strings"
 
 	"github.com/araddon/dateparse"
@@ -25,11 +27,12 @@ func main() {
 			SourceHost:        "http://192.168.70.220:8983/solr/",
 			TargetHost:        "http://192.168.70.220:18983/solr/",
 			Source:            "song",
-			Target:            "song",
+			Target:            "song_full",
 			SourceQuery:       "*:*&sort=id+asc",
 			SourceCursorMark:  "*",
 			SourceRows:        10000,
 			Max:               -1,
+			ShowLog:           true,
 			CommitAfterFinish: true, // solr only
 			PostingData:       true, // solr only
 		}
@@ -37,6 +40,7 @@ func main() {
 		checkConf := basicConf
 		checkConf.CommitAfterFinish = false
 		checkConf.PostingData = false
+		checkConf.ShowLog = false
 
 		sConf := basicConf
 		sConf.ID = "Main"
@@ -86,7 +90,7 @@ func main() {
 					}
 					solr.Copy(checkDupeConf)
 				} else {
-					// no ID to check within type ? remove it doc
+					// no song/artist/album/pl_id to check within type ? remove it doc
 					IdToRemove = append(IdToRemove, docId)
 					return nil, false, false
 				}
@@ -339,6 +343,25 @@ func main() {
 		}
 		solr.Copy(sConf)
 	}
+
+	// tracing solr id duplicate/remove only
+	f, err := os.Create("solr_id_info.out")
+	if err != nil {
+		panic(err)
+	}
+	trace.Start(f)
+
+	fmt.Println("Solr id duplicated")
+	for id, originalId := range IdDupe {
+		fmt.Println(fmt.Sprintf("%s ==> %s", originalId, id))
+	}
+
+	fmt.Println("solr id not included / deleted")
+	for id := range IdToRemove {
+		fmt.Println(id)
+	}
+
+	defer trace.Stop()
 
 }
 

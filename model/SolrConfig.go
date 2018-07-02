@@ -10,6 +10,7 @@ type SolrConfig struct {
 	SourceCursorMark string
 	SourceRows       int
 	Max              int // -1
+	ShowLog          bool
 
 	CommitAfterFinish bool
 	PostingData       bool
