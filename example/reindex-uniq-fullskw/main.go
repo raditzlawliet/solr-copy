@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"os"
-	"runtime/trace"
 	"strings"
 
 	"github.com/araddon/dateparse"
@@ -78,8 +77,8 @@ func main() {
 					fieldValue := data[fieldCheck].(string)
 
 					checkDupeConf := checkConf
-					checkDupeConf.ID = fmt.Sprintf("Dupe-%v:%v&type:%v", fieldCheck, fieldValue, docType)
-					checkDupeConf.SourceQuery = fmt.Sprintf("%v:%v&type:%v&sort=id+asc", fieldCheck, fieldValue, docType)
+					checkDupeConf.ID = fmt.Sprintf("Dupe-*:*&fq=%v:%v&fq=type:%v&sort=id+asc", fieldCheck, fieldValue, docType)
+					checkDupeConf.SourceQuery = fmt.Sprintf("*:*&fq=%v:%v&fq=type:%v&sort=id+asc", fieldCheck, fieldValue, docType)
 					checkDupeConf.DataProcessFunc = func(_data map[string]interface{}) (map[string]interface{}, bool, bool) {
 						_docId := _data["id"].(string)
 						if _docId != docId {
@@ -154,8 +153,8 @@ func main() {
 				// insert album into artist skw
 				fieldValue := data[fieldCheck].(string)
 				checkChildConf := checkConf
-				checkChildConf.ID = fmt.Sprintf("Child-%v:%v&type:%v", fieldCheck, fieldValue, "album")
-				checkChildConf.SourceQuery = fmt.Sprintf("%v:%v&type:%v&sort=id+asc", fieldCheck, fieldValue, "album")
+				checkChildConf.ID = fmt.Sprintf("Child-*:*&fq=%v:%v&fq=type:%v", fieldCheck, fieldValue, "album")
+				checkChildConf.SourceQuery = fmt.Sprintf("*:*&fq=%v:%v&fq=type:%v&sort=id+asc", fieldCheck, fieldValue, "album")
 				checkChildConf.DataProcessFunc = func(_data map[string]interface{}) (map[string]interface{}, bool, bool) {
 					if _, ok := _data["album_name_origin"]; ok {
 						if name := GetNameFromSlice(_data["album_name_origin"]); name != "" {
@@ -205,8 +204,8 @@ func main() {
 				// insert song into artist/album type skw
 				fieldValue := data[fieldCheck].(string)
 				checkChildConf := checkConf
-				checkChildConf.ID = fmt.Sprintf("Child-%v:%v&type:%v", fieldCheck, fieldValue, "song")
-				checkChildConf.SourceQuery = fmt.Sprintf("%v:%v&type:%v&sort=id+asc", fieldCheck, fieldValue, "song")
+				checkChildConf.ID = fmt.Sprintf("Child-*:*&fq=%v:%v&fq=type:%v", fieldCheck, fieldValue, "song")
+				checkChildConf.SourceQuery = fmt.Sprintf("*:*&fq=%v:%v&fq=type:%v&sort=id+asc", fieldCheck, fieldValue, "song")
 				checkChildConf.DataProcessFunc = func(_data map[string]interface{}) (map[string]interface{}, bool, bool) {
 					if _, ok := _data["song_name_origin"]; ok {
 						if name := GetNameFromSlice(data["song_name_origin"]); name != "" {
@@ -238,8 +237,8 @@ func main() {
 				}
 				for _, plSongId := range plSongs {
 					checkChildConf := checkConf
-					checkChildConf.ID = fmt.Sprintf("Child-%v:%v&type:%v", "song_id", plSongId, "song")
-					checkChildConf.SourceQuery = fmt.Sprintf("%v:%v&type:%v&sort=id+asc", "song_id", plSongId, "song")
+					checkChildConf.ID = fmt.Sprintf("Child-*:*&fq=%v:%v&fq=type:%v", "song_id", plSongId, "song")
+					checkChildConf.SourceQuery = fmt.Sprintf("*:*&fq=%v:%v&fq=type:%v&sort=id+asc", "song_id", plSongId, "song")
 					checkChildConf.DataProcessFunc = func(_data map[string]interface{}) (map[string]interface{}, bool, bool) {
 						if _, ok := _data["artist_name_origin"]; ok {
 							if name := GetNameFromSlice(data["artist_name_origin"]); name != "" {
@@ -345,24 +344,21 @@ func main() {
 	}
 
 	// tracing solr id duplicate/remove only
-	f, err := os.Create("solr_id_info.out")
+	f, err := os.Create("solr_id_resume.out")
 	if err != nil {
 		panic(err)
 	}
-	trace.Start(f)
+	defer f.Close()
 
-	fmt.Println("Solr id duplicated")
+	f.WriteString("Solr id duplicated\n")
 	for id, originalId := range IdDupe {
-		fmt.Println(fmt.Sprintf("%s ==> %s", originalId, id))
+		f.WriteString(fmt.Sprintf("%s ==> %s\n", originalId, id))
 	}
 
-	fmt.Println("solr id not included / deleted")
+	f.WriteString("solr id not included / deleted\n")
 	for id := range IdToRemove {
-		fmt.Println(id)
+		f.WriteString(fmt.Sprintf("%s\n", id))
 	}
-
-	defer trace.Stop()
-
 }
 
 func parseSolrDateFormat(_date string) string {
