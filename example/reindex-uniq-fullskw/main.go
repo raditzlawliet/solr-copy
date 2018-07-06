@@ -231,72 +231,104 @@ func main() {
 			}
 
 			if docType == "pl" {
-				plSongs := map[int64]int64{}
+				plSongs := []int64{}
 				if __d, ok := data["pl_songs"]; ok {
-					plSongs[__d.(int64)] = __d.(int64)
+					plSongs = append(plSongs, __d.(int64))
 				}
-				for _, plSongId := range plSongs {
-					checkChildConf := checkConf
-					checkChildConf.ID = fmt.Sprintf("Child-*:*&fq=%v:%v&fq=type:%v", "song_id", plSongId, "song")
-					checkChildConf.SourceQuery = fmt.Sprintf("*:*&fq=%v:%v&fq=type:%v&sort=id+asc", "song_id", plSongId, "song")
-					checkChildConf.DataProcessFunc = func(_data map[string]interface{}) (map[string]interface{}, bool, bool) {
-						if _, ok := _data["artist_name_origin"]; ok {
-							if name := GetNameFromSlice(data["artist_name_origin"]); name != "" {
-								cleanName := CleanString(name)
-								artistSkw[name] = name
-								artistSkw[cleanName] = cleanName
-								searchKeyword[name] = name
-								searchKeyword[cleanName] = cleanName
-							}
+
+				type structPLGroup struct {
+					plSongs []int64
+				}
+
+				plSongsGroup := []structPLGroup{}
+				plSongsEach := structPLGroup{
+					plSongs: []int64{},
+				}
+				for i := 0; i < len(plSongs); i++ {
+					plSongsEach.plSongs = append(plSongsEach.plSongs, plSongs[i])
+					if i != 0 && i%10 == 0 {
+						plSongsGroup = append(plSongsGroup, plSongsEach)
+						plSongsEach = structPLGroup{
+							plSongs: []int64{},
 						}
-						if _, ok := _data["artist_name"]; ok {
-							if name := GetNameFromSlice(_data["artist_name"]); name != "" {
-								cleanName := CleanString(name)
-								artistSkw[name] = name
-								artistSkw[cleanName] = cleanName
-								searchKeyword[name] = name
-								searchKeyword[cleanName] = cleanName
-							}
-						}
-						if _, ok := _data["album_name_origin"]; ok {
-							if name := GetNameFromSlice(data["album_name_origin"]); name != "" {
-								cleanName := CleanString(name)
-								albumSkw[name] = name
-								albumSkw[cleanName] = cleanName
-								searchKeyword[name] = name
-								searchKeyword[cleanName] = cleanName
-							}
-						}
-						if _, ok := _data["album_name"]; ok {
-							if name := GetNameFromSlice(_data["album_name"]); name != "" {
-								cleanName := CleanString(name)
-								albumSkw[name] = name
-								albumSkw[cleanName] = cleanName
-								searchKeyword[name] = name
-								searchKeyword[cleanName] = cleanName
-							}
-						}
-						if _, ok := _data["song_name_origin"]; ok {
-							if name := GetNameFromSlice(data["song_name_origin"]); name != "" {
-								cleanName := CleanString(name)
-								songSkw[name] = name
-								songSkw[cleanName] = cleanName
-								searchKeyword[name] = name
-								searchKeyword[cleanName] = cleanName
-							}
-						}
-						if _, ok := _data["song_name"]; ok {
-							if name := GetNameFromSlice(_data["song_name"]); name != "" {
-								cleanName := CleanString(name)
-								songSkw[name] = name
-								songSkw[cleanName] = cleanName
-								searchKeyword[name] = name
-								searchKeyword[cleanName] = cleanName
-							}
-						}
-						return nil, false, false
 					}
-					solr.Copy(checkChildConf)
+				}
+				if len(plSongsEach.plSongs) > 0 {
+					plSongsGroup = append(plSongsGroup, plSongsEach)
+				}
+
+				for _, plGroup := range plSongsGroup {
+
+					qs := []string{}
+					for _, plSongId := range plGroup.plSongs {
+						qs = append(qs, fmt.Sprintf("%v:%v", "song_id", plSongId))
+					}
+
+					q := fmt.Sprintf("(%v)", strings.Join(qs[:], " OR "))
+
+					{
+						checkChildConf := checkConf
+						checkChildConf.ID = fmt.Sprintf("Child-%v&fq=type:song", q)
+						checkChildConf.SourceQuery = fmt.Sprintf("%v&fq=type:song&sort=id+asc", q)
+						checkChildConf.DataProcessFunc = func(_data map[string]interface{}) (map[string]interface{}, bool, bool) {
+							if _, ok := _data["artist_name_origin"]; ok {
+								if name := GetNameFromSlice(data["artist_name_origin"]); name != "" {
+									cleanName := CleanString(name)
+									artistSkw[name] = name
+									artistSkw[cleanName] = cleanName
+									searchKeyword[name] = name
+									searchKeyword[cleanName] = cleanName
+								}
+							}
+							if _, ok := _data["artist_name"]; ok {
+								if name := GetNameFromSlice(_data["artist_name"]); name != "" {
+									cleanName := CleanString(name)
+									artistSkw[name] = name
+									artistSkw[cleanName] = cleanName
+									searchKeyword[name] = name
+									searchKeyword[cleanName] = cleanName
+								}
+							}
+							if _, ok := _data["album_name_origin"]; ok {
+								if name := GetNameFromSlice(data["album_name_origin"]); name != "" {
+									cleanName := CleanString(name)
+									albumSkw[name] = name
+									albumSkw[cleanName] = cleanName
+									searchKeyword[name] = name
+									searchKeyword[cleanName] = cleanName
+								}
+							}
+							if _, ok := _data["album_name"]; ok {
+								if name := GetNameFromSlice(_data["album_name"]); name != "" {
+									cleanName := CleanString(name)
+									albumSkw[name] = name
+									albumSkw[cleanName] = cleanName
+									searchKeyword[name] = name
+									searchKeyword[cleanName] = cleanName
+								}
+							}
+							if _, ok := _data["song_name_origin"]; ok {
+								if name := GetNameFromSlice(data["song_name_origin"]); name != "" {
+									cleanName := CleanString(name)
+									songSkw[name] = name
+									songSkw[cleanName] = cleanName
+									searchKeyword[name] = name
+									searchKeyword[cleanName] = cleanName
+								}
+							}
+							if _, ok := _data["song_name"]; ok {
+								if name := GetNameFromSlice(_data["song_name"]); name != "" {
+									cleanName := CleanString(name)
+									songSkw[name] = name
+									songSkw[cleanName] = cleanName
+									searchKeyword[name] = name
+									searchKeyword[cleanName] = cleanName
+								}
+							}
+							return nil, false, false
+						}
+						solr.Copy(checkChildConf)
+					}
 				}
 			}
 
