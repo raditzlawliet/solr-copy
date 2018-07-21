@@ -98,6 +98,11 @@ func DataProcess(data map[string]interface{}) (map[string]interface{}, bool, boo
 	// log.Info(song.ID, song.PL_SONG, song.PL_ALBUM, song.PL_ARTIST)
 	// log.Info(song.ID, song.POPULARITY, data["popularity"])
 
+	// remove playlist with empty mbp (data gk valid, perlu reindex dari oracle)
+	if song.TYPE == "pl" && song.MBP_ID == "" {
+		return songTkM, false, false
+	}
+
 	removeVersion := true
 	insert := true
 	return songTkM, removeVersion, insert

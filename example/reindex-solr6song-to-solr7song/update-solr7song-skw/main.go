@@ -89,6 +89,9 @@ func DataProcess(data map[string]interface{}) (map[string]interface{}, bool, boo
 
 		delete(data, "suggest_keyword")
 
+		// update date last release date with reg_date
+		lastReleaseDate := gaemonhelper.ParseSolrDateFormat(data["reg_date"].(string))
+
 		if docType == "artist" {
 			// take all album
 			fieldValue := helper.GetStringFromTkM(data, fieldCheck)
@@ -109,6 +112,9 @@ func DataProcess(data map[string]interface{}) (map[string]interface{}, bool, boo
 					albumSkw[cleanName] = cleanName
 
 				}
+				// update date last release date with reg_date
+				_lastReleaseDate := gaemonhelper.ParseSolrDateFormat(_data["reg_date"].(string))
+				lastReleaseDate = gaemonhelper.GetCompareSolrDateFormat(lastReleaseDate, _lastReleaseDate, true)
 				return nil, false, false
 			}
 			solr.Copy(checkChildConf)
@@ -135,12 +141,15 @@ func DataProcess(data map[string]interface{}) (map[string]interface{}, bool, boo
 					songSkw[cleanName] = cleanName
 
 				}
+				// update date last release date with reg_date
+				_lastReleaseDate := gaemonhelper.ParseSolrDateFormat(_data["reg_date"].(string))
+				lastReleaseDate = gaemonhelper.GetCompareSolrDateFormat(lastReleaseDate, _lastReleaseDate, true)
 				return nil, false, false
 			}
 			solr.Copy(checkChildConf)
 		}
 
-		if docType == "artist" || docType == "album" || docType == "song" {
+		if docType == "artist" || docType == "album" || docType == "song" || docType == "song_vod" {
 			{
 				name := helper.GetStringFromTkM(data, "artist_name")
 				cleanName := gaemonhelper.FilterSearchKeyword(name, true)
@@ -239,6 +248,9 @@ func DataProcess(data map[string]interface{}) (map[string]interface{}, bool, boo
 			}
 		}
 
+		// update last release date for artist/album/song/song_vod
+		data["last_release_date"] = lastReleaseDate
+
 		data["artist_search_keyword"] = gaemonhelper.MapStringStringToSlice(artistSkw)
 		data["album_search_keyword"] = gaemonhelper.MapStringStringToSlice(albumSkw)
 		data["song_search_keyword"] = gaemonhelper.MapStringStringToSlice(songSkw)
@@ -263,7 +275,10 @@ func DataProcess(data map[string]interface{}) (map[string]interface{}, bool, boo
 		} else if docType == "pl" {
 			data["suggest_keyword"] = []string{gaemonhelper.FilterSearchKeyword(helper.GetStringFromTkM(data, "pl_name"), true)}
 		} else if docType == "song_vod" {
-			data["suggest_keyword"] = []string{gaemonhelper.FilterSearchKeyword(helper.GetStringFromTkM(data, "vod_title"), true)}
+			data["suggest_keyword"] = []string{
+				gaemonhelper.FilterSearchKeyword(helper.GetStringFromTkM(data, "vod_title"), true),
+				gaemonhelper.FilterSearchKeyword(helper.GetStringFromTkM(data, "song_name"), true),
+			}
 		}
 
 	}
