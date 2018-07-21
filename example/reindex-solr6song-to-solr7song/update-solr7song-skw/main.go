@@ -276,5 +276,5 @@ func DataProcess(data map[string]interface{}) (map[string]interface{}, bool, boo
 func InitLogger() {
 	log.SetFormatter(&log.TextFormatter{ForceColors: true, FullTimestamp: true, TimestampFormat: "2006/01/02 15:04:05"})
 	log.SetOutput(colorable.NewColorableStdout())
-	log.SetLevel(log.DebugLevel)
+	log.SetLevel(log.InfoLevel)
 }
