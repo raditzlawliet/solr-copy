@@ -46,6 +46,14 @@ func GetLongsFromTkM(data map[string]interface{}, key string) []int64 {
 			for _, v := range data[key].([]int32) {
 				ls = append(ls, int64(v))
 			}
+		} else if _, ok2 := data[key].([]float32); ok2 {
+			for _, v := range data[key].([]float32) {
+				ls = append(ls, int64(v))
+			}
+		} else if _, ok2 := data[key].([]float64); ok2 {
+			for _, v := range data[key].([]float64) {
+				ls = append(ls, int64(v))
+			}
 		} else if v, ok2 := data[key].([]int64); ok2 {
 			return v
 		} else if _, ok2 := data[key].([]interface{}); ok2 {
@@ -54,9 +62,13 @@ func GetLongsFromTkM(data map[string]interface{}, key string) []int64 {
 					ls = append(ls, int64(v))
 				} else if v, ok3 := iv.(int64); ok3 {
 					ls = append(ls, v)
+				} else if v, ok3 := iv.(float64); ok3 {
+					ls = append(ls, int64(v))
+				} else if v, ok3 := iv.(float32); ok3 {
+					ls = append(ls, int64(v))
 				}
 			}
 		}
 	}
-	return []int64{}
+	return ls
 }

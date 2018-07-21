@@ -95,7 +95,8 @@ func DataProcess(data map[string]interface{}) (map[string]interface{}, bool, boo
 
 	songTkM := song.ToM()
 
-	log.Debug(songTkM)
+	// log.Info(song.ID, song.PL_SONG, song.PL_ALBUM, song.PL_ARTIST)
+	// log.Info(song.ID, song.POPULARITY, data["popularity"])
 
 	removeVersion := true
 	insert := true
