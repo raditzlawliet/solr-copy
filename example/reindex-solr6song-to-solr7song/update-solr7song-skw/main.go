@@ -250,7 +250,7 @@ func DataProcess(data map[string]interface{}) (map[string]interface{}, bool, boo
 
 		// update last release date for artist/album/song/song_vod
 		data["last_release_date"] = lastReleaseDate
-		fmt.Println(data["last_release_date"])
+		// fmt.Println(data["last_release_date"])
 
 		data["artist_search_keyword"] = gaemonhelper.MapStringStringToSlice(artistSkw)
 		data["album_search_keyword"] = gaemonhelper.MapStringStringToSlice(albumSkw)
