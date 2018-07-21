@@ -1,3 +1,8 @@
 /log
 /vendor
 /Gopkg.lock
+/example/reindex-and-upgrade-song/solr-copy-and-upgrade-song-192.168.70.220-8983
+/example/reindex-and-upgrade-song/solr-copy-and-upgrade-song-192.168.70.220-9983
+/example/reindex-and-upgrade-song/solr-copy-and-upgrade-song3-192.168.70.220-8983-to-song-192.168.70.220-18983
+/example/reindex-and-upgrade-song/solr-copy-and-upgrade-song3-192.168.70.220-8983-to-song-192.168.70.220-18983-with-date
+/example/reindex-and-upgrade-song/solr-copy-test.exe
