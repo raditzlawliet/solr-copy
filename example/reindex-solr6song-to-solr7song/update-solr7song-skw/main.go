@@ -47,8 +47,8 @@ func main() {
 		SourceRows:        10000,
 		Max:               -1,
 		ShowLog:           true,
-		CommitAfterFinish: false, // solr only
-		PostingData:       false, // solr only
+		CommitAfterFinish: true, // solr only
+		PostingData:       true, // solr only
 		DataProcessFunc:   DataProcess,
 	}
 

@@ -22,15 +22,15 @@ func main() {
 	sConf := model.SolrConfig{
 		SourceHost:        "http://192.168.70.220:8983/solr/",
 		TargetHost:        "http://192.168.70.220:18983/solr/",
-		Source:            "song",
+		Source:            "songs3_201807",
 		Target:            "song",
 		SourceQuery:       "*:*&sort=id+asc",
 		SourceCursorMark:  "*",
 		SourceRows:        10000,
 		Max:               -1,
 		ShowLog:           true,
-		CommitAfterFinish: false, // solr only
-		PostingData:       false, // solr only
+		CommitAfterFinish: true, // solr only
+		PostingData:       true, // solr only
 		DataProcessFunc:   DataProcess,
 	}
 	log.Info("Begin Reindex Solr-6 song to Solr-7 song new schema")
@@ -49,6 +49,7 @@ func DataProcess(data map[string]interface{}) (map[string]interface{}, bool, boo
 	{
 		CopySong6TkMToSong7(&song, data)
 
+		// moved to update-solr7songs-kw
 		// search_keyword
 		song.SONG_SEARCH_KEYWORD = []string{song.SONG_NAME, gaemonhelper.FilterSearchKeyword(song.SONG_NAME, true)}
 		song.ALBUM_SEARCH_KEYWORD = []string{song.ALBUM_NAME, gaemonhelper.FilterSearchKeyword(song.ALBUM_NAME, true)}
