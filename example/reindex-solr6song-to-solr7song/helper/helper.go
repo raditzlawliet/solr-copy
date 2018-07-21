@@ -33,6 +33,10 @@ func GetLongFromTkM(data map[string]interface{}, key string) int64 {
 			return int64(v)
 		} else if v, ok2 := data[key].(int64); ok2 {
 			return v
+		} else if v, ok2 := data[key].(float32); ok2 {
+			return int64(v)
+		} else if v, ok2 := data[key].(float64); ok2 {
+			return int64(v)
 		}
 	}
 	return 0
