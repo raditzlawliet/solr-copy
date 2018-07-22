@@ -79,6 +79,7 @@ func DataProcess(data map[string]interface{}) (map[string]interface{}, bool, boo
 		artistSkw := map[string]string{}
 		albumSkw := map[string]string{}
 		songSkw := map[string]string{}
+		skw := map[string]string{}
 
 		delete(data, "artist_search_keyword")
 		delete(data, "album_search_keyword")
@@ -102,14 +103,14 @@ func DataProcess(data map[string]interface{}) (map[string]interface{}, bool, boo
 				{
 					name := helper.GetStringFromTkM(_data, "album_name")
 					cleanName := gaemonhelper.FilterSearchKeyword(name, true)
-					albumSkw[name] = name
-					albumSkw[cleanName] = cleanName
+					albumSkw[strings.ToLower(name)] = name
+					albumSkw[strings.ToLower(cleanName)] = cleanName
 				}
 				{
 					name := helper.GetStringFromTkM(_data, "album_name_origin")
 					cleanName := gaemonhelper.FilterSearchKeyword(name, true)
-					albumSkw[name] = name
-					albumSkw[cleanName] = cleanName
+					albumSkw[strings.ToLower(name)] = name
+					albumSkw[strings.ToLower(cleanName)] = cleanName
 
 				}
 				// update date last release date with reg_date
@@ -130,15 +131,15 @@ func DataProcess(data map[string]interface{}) (map[string]interface{}, bool, boo
 				{
 					name := helper.GetStringFromTkM(_data, "song_name")
 					cleanName := gaemonhelper.FilterSearchKeyword(name, true)
-					songSkw[name] = name
-					songSkw[cleanName] = cleanName
+					songSkw[strings.ToLower(name)] = name
+					songSkw[strings.ToLower(cleanName)] = cleanName
 
 				}
 				{
 					name := helper.GetStringFromTkM(_data, "song_name_origin")
 					cleanName := gaemonhelper.FilterSearchKeyword(name, true)
-					songSkw[name] = name
-					songSkw[cleanName] = cleanName
+					songSkw[strings.ToLower(name)] = name
+					songSkw[strings.ToLower(cleanName)] = cleanName
 
 				}
 				// update date last release date with reg_date
@@ -153,38 +154,38 @@ func DataProcess(data map[string]interface{}) (map[string]interface{}, bool, boo
 			{
 				name := helper.GetStringFromTkM(data, "artist_name")
 				cleanName := gaemonhelper.FilterSearchKeyword(name, true)
-				artistSkw[name] = name
-				artistSkw[cleanName] = cleanName
+				artistSkw[strings.ToLower(name)] = name
+				artistSkw[strings.ToLower(cleanName)] = cleanName
 			}
 			{
 				name := helper.GetStringFromTkM(data, "artist_name_origin")
 				cleanName := gaemonhelper.FilterSearchKeyword(name, true)
-				artistSkw[name] = name
-				artistSkw[cleanName] = cleanName
+				artistSkw[strings.ToLower(name)] = name
+				artistSkw[strings.ToLower(cleanName)] = cleanName
 			}
 			{
 				name := helper.GetStringFromTkM(data, "album_name")
 				cleanName := gaemonhelper.FilterSearchKeyword(name, true)
-				albumSkw[name] = name
-				albumSkw[cleanName] = cleanName
+				albumSkw[strings.ToLower(name)] = name
+				albumSkw[strings.ToLower(cleanName)] = cleanName
 			}
 			{
 				name := helper.GetStringFromTkM(data, "album_name_origin")
 				cleanName := gaemonhelper.FilterSearchKeyword(name, true)
-				albumSkw[name] = name
-				albumSkw[cleanName] = cleanName
+				albumSkw[strings.ToLower(name)] = name
+				albumSkw[strings.ToLower(cleanName)] = cleanName
 			}
 			{
 				name := helper.GetStringFromTkM(data, "song_name")
 				cleanName := gaemonhelper.FilterSearchKeyword(name, true)
-				songSkw[name] = name
-				songSkw[cleanName] = cleanName
+				songSkw[strings.ToLower(name)] = name
+				songSkw[strings.ToLower(cleanName)] = cleanName
 			}
 			{
 				name := helper.GetStringFromTkM(data, "song_name_origin")
 				cleanName := gaemonhelper.FilterSearchKeyword(name, true)
-				songSkw[name] = name
-				songSkw[cleanName] = cleanName
+				songSkw[strings.ToLower(name)] = name
+				songSkw[strings.ToLower(cleanName)] = cleanName
 			}
 		}
 
@@ -232,38 +233,38 @@ func DataProcess(data map[string]interface{}) (map[string]interface{}, bool, boo
 					{
 						name := helper.GetStringFromTkM(_data, "artist_name")
 						cleanName := gaemonhelper.FilterSearchKeyword(name, true)
-						artistSkw[name] = name
-						artistSkw[cleanName] = cleanName
+						artistSkw[strings.ToLower(name)] = name
+						artistSkw[strings.ToLower(cleanName)] = cleanName
 					}
 					{
 						name := helper.GetStringFromTkM(_data, "artist_name_origin")
 						cleanName := gaemonhelper.FilterSearchKeyword(name, true)
-						artistSkw[name] = name
-						artistSkw[cleanName] = cleanName
+						artistSkw[strings.ToLower(name)] = name
+						artistSkw[strings.ToLower(cleanName)] = cleanName
 					}
 					{
 						name := helper.GetStringFromTkM(_data, "album_name")
 						cleanName := gaemonhelper.FilterSearchKeyword(name, true)
-						albumSkw[name] = name
-						albumSkw[cleanName] = cleanName
+						albumSkw[strings.ToLower(name)] = name
+						albumSkw[strings.ToLower(cleanName)] = cleanName
 					}
 					{
 						name := helper.GetStringFromTkM(_data, "album_name_origin")
 						cleanName := gaemonhelper.FilterSearchKeyword(name, true)
-						albumSkw[name] = name
-						albumSkw[cleanName] = cleanName
+						albumSkw[strings.ToLower(name)] = name
+						albumSkw[strings.ToLower(cleanName)] = cleanName
 					}
 					{
 						name := helper.GetStringFromTkM(_data, "song_name")
 						cleanName := gaemonhelper.FilterSearchKeyword(name, true)
-						songSkw[name] = name
-						songSkw[cleanName] = cleanName
+						songSkw[strings.ToLower(name)] = name
+						songSkw[strings.ToLower(cleanName)] = cleanName
 					}
 					{
 						name := helper.GetStringFromTkM(_data, "song_name_origin")
 						cleanName := gaemonhelper.FilterSearchKeyword(name, true)
-						songSkw[name] = name
-						songSkw[cleanName] = cleanName
+						songSkw[strings.ToLower(name)] = name
+						songSkw[strings.ToLower(cleanName)] = cleanName
 					}
 					return nil, false, false
 				}
@@ -279,12 +280,18 @@ func DataProcess(data map[string]interface{}) (map[string]interface{}, bool, boo
 		data["album_search_keyword"] = gaemonhelper.MapStringStringToSlice(albumSkw)
 		data["song_search_keyword"] = gaemonhelper.MapStringStringToSlice(songSkw)
 
-		skwSlice := []string{}
-		skwSlice = append(skwSlice, data["artist_search_keyword"].([]string)...)
-		skwSlice = append(skwSlice, data["album_search_keyword"].([]string)...)
-		skwSlice = append(skwSlice, data["song_search_keyword"].([]string)...)
+		// unique search keyword using lower case
+		for _, v := range artistSkw {
+			skw[strings.ToLower(v)] = v
+		}
+		for _, v := range albumSkw {
+			skw[strings.ToLower(v)] = v
+		}
+		for _, v := range songSkw {
+			skw[strings.ToLower(v)] = v
+		}
 
-		data["search_keyword"] = gaemonhelper.GetUniqueStrings(skwSlice)
+		data["search_keyword"] = gaemonhelper.MapStringStringToSlice(skw)
 		data["search_keyword_soundex"] = data["search_keyword"]
 
 		if docType == "song" {
@@ -299,10 +306,12 @@ func DataProcess(data map[string]interface{}) (map[string]interface{}, bool, boo
 		} else if docType == "pl" {
 			data["suggest_keyword"] = []string{gaemonhelper.FilterSearchKeyword(helper.GetStringFromTkM(data, "pl_name"), true)}
 		} else if docType == "song_vod" {
-			data["suggest_keyword"] = []string{
-				gaemonhelper.FilterSearchKeyword(helper.GetStringFromTkM(data, "vod_title"), true),
-				gaemonhelper.FilterSearchKeyword(helper.GetStringFromTkM(data, "song_name"), true),
-			}
+			data["suggest_keyword"] = gaemonhelper.GetUniqueStrings([]string{
+				fmt.Sprintf("%v - %v", gaemonhelper.FilterSearchKeyword(helper.GetStringFromTkM(data, "vod_title"), true), gaemonhelper.FilterSearchKeyword(helper.GetStringFromTkM(data, "artist_name"), true)),
+				fmt.Sprintf("%v - %v", gaemonhelper.FilterSearchKeyword(helper.GetStringFromTkM(data, "artist_name"), true), gaemonhelper.FilterSearchKeyword(helper.GetStringFromTkM(data, "vod_title"), true)),
+				fmt.Sprintf("%v - %v", gaemonhelper.FilterSearchKeyword(helper.GetStringFromTkM(data, "song_name"), true), gaemonhelper.FilterSearchKeyword(helper.GetStringFromTkM(data, "artist_name"), true)),
+				fmt.Sprintf("%v - %v", gaemonhelper.FilterSearchKeyword(helper.GetStringFromTkM(data, "artist_name"), true), gaemonhelper.FilterSearchKeyword(helper.GetStringFromTkM(data, "song_name"), true)),
+			})
 		}
 
 	}
