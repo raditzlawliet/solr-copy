@@ -44,7 +44,9 @@ func Copy(conf SolrConfig) {
 
 	for i := 0; ; i++ {
 		end := func() bool {
-			SourceCursorMark = strings.Replace(SourceCursorMark, "+", "%2B", -1)
+			SourceCursorMarkEncoded := SourceCursorMark
+			SourceQueryEncoded := SourceQuery
+
 			rowToGet := SourceRows
 
 			// fetch row more than Max
@@ -58,7 +60,7 @@ func Copy(conf SolrConfig) {
 			}
 
 			client := http.Client{}
-			SourceSolrUrl := (fmt.Sprintf("%s%s/select?q=%s&rows=%v&wt=json&cursorMark=%s", SourceHost, Source, SourceQuery, rowToGet, SourceCursorMark))
+			SourceSolrUrl := (fmt.Sprintf("%s%s/select?q=%s&rows=%v&wt=json&cursorMark=%s", SourceHost, Source, SourceQueryEncoded, rowToGet, SourceCursorMarkEncoded))
 			if conf.ShowLog {
 				log.Infof("[%v] Getting Data from %v", CopyID, SourceSolrUrl)
 			}
@@ -96,6 +98,7 @@ func Copy(conf SolrConfig) {
 			iDocs := docRes["docs"].([]interface{})
 
 			SourceCursorMark = resMap["nextCursorMark"].(string)
+			SourceCursorMark := strings.Replace(SourceCursorMark, "+", "%2B", -1) // encoded version moved, so first proses didnt include encode
 
 			TotalData += len(iDocs)
 

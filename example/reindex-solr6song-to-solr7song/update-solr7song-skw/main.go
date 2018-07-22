@@ -100,13 +100,13 @@ func DataProcess(data map[string]interface{}) (map[string]interface{}, bool, boo
 			checkChildConf.ID = checkChildConf.SourceQuery
 			checkChildConf.DataProcessFunc = func(_data map[string]interface{}) (map[string]interface{}, bool, bool) {
 				{
-					name := helper.GetStringFromTkM(data, "album_name")
+					name := helper.GetStringFromTkM(_data, "album_name")
 					cleanName := gaemonhelper.FilterSearchKeyword(name, true)
 					albumSkw[name] = name
 					albumSkw[cleanName] = cleanName
 				}
 				{
-					name := helper.GetStringFromTkM(data, "album_name_origin")
+					name := helper.GetStringFromTkM(_data, "album_name_origin")
 					cleanName := gaemonhelper.FilterSearchKeyword(name, true)
 					albumSkw[name] = name
 					albumSkw[cleanName] = cleanName
@@ -128,14 +128,14 @@ func DataProcess(data map[string]interface{}) (map[string]interface{}, bool, boo
 			checkChildConf.ID = checkChildConf.SourceQuery
 			checkChildConf.DataProcessFunc = func(_data map[string]interface{}) (map[string]interface{}, bool, bool) {
 				{
-					name := helper.GetStringFromTkM(data, "song_name")
+					name := helper.GetStringFromTkM(_data, "song_name")
 					cleanName := gaemonhelper.FilterSearchKeyword(name, true)
 					songSkw[name] = name
 					songSkw[cleanName] = cleanName
 
 				}
 				{
-					name := helper.GetStringFromTkM(data, "song_name_origin")
+					name := helper.GetStringFromTkM(_data, "song_name_origin")
 					cleanName := gaemonhelper.FilterSearchKeyword(name, true)
 					songSkw[name] = name
 					songSkw[cleanName] = cleanName
@@ -190,7 +190,7 @@ func DataProcess(data map[string]interface{}) (map[string]interface{}, bool, boo
 
 		if docType == "pl" {
 			// take all pl
-			plSongs := helper.GetLongsFromTkM(data, "pl_songs")
+			plSongs := helper.GetLongsFromTkM(data, "pl_song")
 
 			type structPLGroup struct {
 				plSongs []int64
@@ -223,24 +223,47 @@ func DataProcess(data map[string]interface{}) (map[string]interface{}, bool, boo
 				for _, songID := range _plSongsGroup.plSongs {
 					qs = append(qs, fmt.Sprintf("id:song-%v", songID))
 				}
-				q := fmt.Sprintf("(%v)", strings.Join(qs[:], " OR "))
+				q := fmt.Sprintf("(%v)", strings.Join(qs[:], "+OR+"))
 
 				checkChildConf := viewConf
 				checkChildConf.SourceQuery = fmt.Sprintf("%v&fq=type:song&sort=id+asc", q)
 				checkChildConf.ID = checkChildConf.SourceQuery
 				checkChildConf.DataProcessFunc = func(_data map[string]interface{}) (map[string]interface{}, bool, bool) {
 					{
-						name := helper.GetStringFromTkM(data, "song_name")
+						name := helper.GetStringFromTkM(_data, "artist_name")
+						cleanName := gaemonhelper.FilterSearchKeyword(name, true)
+						artistSkw[name] = name
+						artistSkw[cleanName] = cleanName
+					}
+					{
+						name := helper.GetStringFromTkM(_data, "artist_name_origin")
+						cleanName := gaemonhelper.FilterSearchKeyword(name, true)
+						artistSkw[name] = name
+						artistSkw[cleanName] = cleanName
+					}
+					{
+						name := helper.GetStringFromTkM(_data, "album_name")
+						cleanName := gaemonhelper.FilterSearchKeyword(name, true)
+						albumSkw[name] = name
+						albumSkw[cleanName] = cleanName
+					}
+					{
+						name := helper.GetStringFromTkM(_data, "album_name_origin")
+						cleanName := gaemonhelper.FilterSearchKeyword(name, true)
+						albumSkw[name] = name
+						albumSkw[cleanName] = cleanName
+					}
+					{
+						name := helper.GetStringFromTkM(_data, "song_name")
 						cleanName := gaemonhelper.FilterSearchKeyword(name, true)
 						songSkw[name] = name
 						songSkw[cleanName] = cleanName
 					}
 					{
-						name := helper.GetStringFromTkM(data, "song_name_origin")
+						name := helper.GetStringFromTkM(_data, "song_name_origin")
 						cleanName := gaemonhelper.FilterSearchKeyword(name, true)
 						songSkw[name] = name
 						songSkw[cleanName] = cleanName
-
 					}
 					return nil, false, false
 				}

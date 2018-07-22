@@ -3,11 +3,11 @@ package model
 type SolrConfig struct {
 	ID               string
 	SourceHost       string
-	TargetHost       string
+	TargetHost       string // please encode yourself
 	Source           string
 	Target           string
-	SourceQuery      string
-	SourceCursorMark string
+	SourceQuery      string // please encode yourself
+	SourceCursorMark string // please encode yourself
 	SourceRows       int
 	Max              int // -1
 	ShowLog          bool
