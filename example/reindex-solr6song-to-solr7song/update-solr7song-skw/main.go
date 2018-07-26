@@ -102,13 +102,13 @@ func DataProcess(data map[string]interface{}) (map[string]interface{}, bool, boo
 			checkChildConf.DataProcessFunc = func(_data map[string]interface{}) (map[string]interface{}, bool, bool) {
 				{
 					name := helper.GetStringFromTkM(_data, "album_name")
-					cleanName := gaemonhelper.FilterSearchKeyword(name, true)
+					cleanName := gaemonhelper.FilterSearchKeyword(name)
 					albumSkw[strings.ToLower(name)] = name
 					albumSkw[strings.ToLower(cleanName)] = cleanName
 				}
 				{
 					name := helper.GetStringFromTkM(_data, "album_name_origin")
-					cleanName := gaemonhelper.FilterSearchKeyword(name, true)
+					cleanName := gaemonhelper.FilterSearchKeyword(name)
 					albumSkw[strings.ToLower(name)] = name
 					albumSkw[strings.ToLower(cleanName)] = cleanName
 
@@ -130,14 +130,14 @@ func DataProcess(data map[string]interface{}) (map[string]interface{}, bool, boo
 			checkChildConf.DataProcessFunc = func(_data map[string]interface{}) (map[string]interface{}, bool, bool) {
 				{
 					name := helper.GetStringFromTkM(_data, "song_name")
-					cleanName := gaemonhelper.FilterSearchKeyword(name, true)
+					cleanName := gaemonhelper.FilterSearchKeyword(name)
 					songSkw[strings.ToLower(name)] = name
 					songSkw[strings.ToLower(cleanName)] = cleanName
 
 				}
 				{
 					name := helper.GetStringFromTkM(_data, "song_name_origin")
-					cleanName := gaemonhelper.FilterSearchKeyword(name, true)
+					cleanName := gaemonhelper.FilterSearchKeyword(name)
 					songSkw[strings.ToLower(name)] = name
 					songSkw[strings.ToLower(cleanName)] = cleanName
 
@@ -153,37 +153,37 @@ func DataProcess(data map[string]interface{}) (map[string]interface{}, bool, boo
 		if docType == "artist" || docType == "album" || docType == "song" || docType == "song_vod" {
 			{
 				name := helper.GetStringFromTkM(data, "artist_name")
-				cleanName := gaemonhelper.FilterSearchKeyword(name, true)
+				cleanName := gaemonhelper.FilterSearchKeyword(name)
 				artistSkw[strings.ToLower(name)] = name
 				artistSkw[strings.ToLower(cleanName)] = cleanName
 			}
 			{
 				name := helper.GetStringFromTkM(data, "artist_name_origin")
-				cleanName := gaemonhelper.FilterSearchKeyword(name, true)
+				cleanName := gaemonhelper.FilterSearchKeyword(name)
 				artistSkw[strings.ToLower(name)] = name
 				artistSkw[strings.ToLower(cleanName)] = cleanName
 			}
 			{
 				name := helper.GetStringFromTkM(data, "album_name")
-				cleanName := gaemonhelper.FilterSearchKeyword(name, true)
+				cleanName := gaemonhelper.FilterSearchKeyword(name)
 				albumSkw[strings.ToLower(name)] = name
 				albumSkw[strings.ToLower(cleanName)] = cleanName
 			}
 			{
 				name := helper.GetStringFromTkM(data, "album_name_origin")
-				cleanName := gaemonhelper.FilterSearchKeyword(name, true)
+				cleanName := gaemonhelper.FilterSearchKeyword(name)
 				albumSkw[strings.ToLower(name)] = name
 				albumSkw[strings.ToLower(cleanName)] = cleanName
 			}
 			{
 				name := helper.GetStringFromTkM(data, "song_name")
-				cleanName := gaemonhelper.FilterSearchKeyword(name, true)
+				cleanName := gaemonhelper.FilterSearchKeyword(name)
 				songSkw[strings.ToLower(name)] = name
 				songSkw[strings.ToLower(cleanName)] = cleanName
 			}
 			{
 				name := helper.GetStringFromTkM(data, "song_name_origin")
-				cleanName := gaemonhelper.FilterSearchKeyword(name, true)
+				cleanName := gaemonhelper.FilterSearchKeyword(name)
 				songSkw[strings.ToLower(name)] = name
 				songSkw[strings.ToLower(cleanName)] = cleanName
 			}
@@ -232,37 +232,37 @@ func DataProcess(data map[string]interface{}) (map[string]interface{}, bool, boo
 				checkChildConf.DataProcessFunc = func(_data map[string]interface{}) (map[string]interface{}, bool, bool) {
 					{
 						name := helper.GetStringFromTkM(_data, "artist_name")
-						cleanName := gaemonhelper.FilterSearchKeyword(name, true)
+						cleanName := gaemonhelper.FilterSearchKeyword(name)
 						artistSkw[strings.ToLower(name)] = name
 						artistSkw[strings.ToLower(cleanName)] = cleanName
 					}
 					{
 						name := helper.GetStringFromTkM(_data, "artist_name_origin")
-						cleanName := gaemonhelper.FilterSearchKeyword(name, true)
+						cleanName := gaemonhelper.FilterSearchKeyword(name)
 						artistSkw[strings.ToLower(name)] = name
 						artistSkw[strings.ToLower(cleanName)] = cleanName
 					}
 					{
 						name := helper.GetStringFromTkM(_data, "album_name")
-						cleanName := gaemonhelper.FilterSearchKeyword(name, true)
+						cleanName := gaemonhelper.FilterSearchKeyword(name)
 						albumSkw[strings.ToLower(name)] = name
 						albumSkw[strings.ToLower(cleanName)] = cleanName
 					}
 					{
 						name := helper.GetStringFromTkM(_data, "album_name_origin")
-						cleanName := gaemonhelper.FilterSearchKeyword(name, true)
+						cleanName := gaemonhelper.FilterSearchKeyword(name)
 						albumSkw[strings.ToLower(name)] = name
 						albumSkw[strings.ToLower(cleanName)] = cleanName
 					}
 					{
 						name := helper.GetStringFromTkM(_data, "song_name")
-						cleanName := gaemonhelper.FilterSearchKeyword(name, true)
+						cleanName := gaemonhelper.FilterSearchKeyword(name)
 						songSkw[strings.ToLower(name)] = name
 						songSkw[strings.ToLower(cleanName)] = cleanName
 					}
 					{
 						name := helper.GetStringFromTkM(_data, "song_name_origin")
-						cleanName := gaemonhelper.FilterSearchKeyword(name, true)
+						cleanName := gaemonhelper.FilterSearchKeyword(name)
 						songSkw[strings.ToLower(name)] = name
 						songSkw[strings.ToLower(cleanName)] = cleanName
 					}
@@ -296,22 +296,22 @@ func DataProcess(data map[string]interface{}) (map[string]interface{}, bool, boo
 
 		if docType == "song" {
 			data["suggest_keyword"] = []string{
-				fmt.Sprintf("%v - %v", gaemonhelper.FilterSearchKeyword(helper.GetStringFromTkM(data, "song_name"), true), gaemonhelper.FilterSearchKeyword(helper.GetStringFromTkM(data, "artist_name"), true)),
-				fmt.Sprintf("%v - %v", gaemonhelper.FilterSearchKeyword(helper.GetStringFromTkM(data, "artist_name"), true), gaemonhelper.FilterSearchKeyword(helper.GetStringFromTkM(data, "song_name"), true)),
+				fmt.Sprintf("%v - %v", gaemonhelper.FilterSearchKeyword(helper.GetStringFromTkM(data, "song_name")), gaemonhelper.FilterSearchKeyword(helper.GetStringFromTkM(data, "artist_name"))),
+				fmt.Sprintf("%v - %v", gaemonhelper.FilterSearchKeyword(helper.GetStringFromTkM(data, "artist_name")), gaemonhelper.FilterSearchKeyword(helper.GetStringFromTkM(data, "song_name"))),
 			}
 		} else if docType == "artist" {
-			data["suggest_keyword"] = []string{gaemonhelper.FilterSearchKeyword(helper.GetStringFromTkM(data, "artist_name"), true)}
+			data["suggest_keyword"] = []string{gaemonhelper.FilterSearchKeyword(helper.GetStringFromTkM(data, "artist_name"))}
 		} else if docType == "album" {
-			data["suggest_keyword"] = []string{gaemonhelper.FilterSearchKeyword(helper.GetStringFromTkM(data, "album_name"), true)}
+			data["suggest_keyword"] = []string{gaemonhelper.FilterSearchKeyword(helper.GetStringFromTkM(data, "album_name"))}
 		} else if docType == "pl" {
-			data["suggest_keyword"] = []string{gaemonhelper.FilterSearchKeyword(helper.GetStringFromTkM(data, "pl_name"), true)}
+			data["suggest_keyword"] = []string{gaemonhelper.FilterSearchKeyword(helper.GetStringFromTkM(data, "pl_name"))}
 		} else if docType == "song_vod" {
 			data["suggest_keyword"] = gaemonhelper.GetUniqueStrings([]string{
-				fmt.Sprintf("%v - %v", gaemonhelper.FilterSearchKeyword(helper.GetStringFromTkM(data, "vod_title"), true), gaemonhelper.FilterSearchKeyword(helper.GetStringFromTkM(data, "artist_name"), true)),
-				fmt.Sprintf("%v - %v", gaemonhelper.FilterSearchKeyword(helper.GetStringFromTkM(data, "artist_name"), true), gaemonhelper.FilterSearchKeyword(helper.GetStringFromTkM(data, "vod_title"), true)),
-				fmt.Sprintf("%v - %v", gaemonhelper.FilterSearchKeyword(helper.GetStringFromTkM(data, "song_name"), true), gaemonhelper.FilterSearchKeyword(helper.GetStringFromTkM(data, "artist_name"), true)),
-				fmt.Sprintf("%v - %v", gaemonhelper.FilterSearchKeyword(helper.GetStringFromTkM(data, "artist_name"), true), gaemonhelper.FilterSearchKeyword(helper.GetStringFromTkM(data, "song_name"), true)),
-			})
+				fmt.Sprintf("%v - %v", gaemonhelper.FilterSearchKeyword(helper.GetStringFromTkM(data, "vod_title")), gaemonhelper.FilterSearchKeyword(helper.GetStringFromTkM(data, "artist_name"))),
+				fmt.Sprintf("%v - %v", gaemonhelper.FilterSearchKeyword(helper.GetStringFromTkM(data, "artist_name")), gaemonhelper.FilterSearchKeyword(helper.GetStringFromTkM(data, "vod_title"))),
+				fmt.Sprintf("%v - %v", gaemonhelper.FilterSearchKeyword(helper.GetStringFromTkM(data, "song_name")), gaemonhelper.FilterSearchKeyword(helper.GetStringFromTkM(data, "artist_name"))),
+				fmt.Sprintf("%v - %v", gaemonhelper.FilterSearchKeyword(helper.GetStringFromTkM(data, "artist_name")), gaemonhelper.FilterSearchKeyword(helper.GetStringFromTkM(data, "song_name"))),
+			}, true)
 		}
 
 	}

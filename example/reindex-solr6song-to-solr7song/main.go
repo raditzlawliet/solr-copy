@@ -51,9 +51,9 @@ func DataProcess(data map[string]interface{}) (map[string]interface{}, bool, boo
 
 		// moved to update-solr7songs-kw
 		// search_keyword
-		song.SONG_SEARCH_KEYWORD = []string{song.SONG_NAME, gaemonhelper.FilterSearchKeyword(song.SONG_NAME, true)}
-		song.ALBUM_SEARCH_KEYWORD = []string{song.ALBUM_NAME, gaemonhelper.FilterSearchKeyword(song.ALBUM_NAME, true)}
-		song.ARTIST_SEARCH_KEYWORD = []string{song.ARTIST_NAME, gaemonhelper.FilterSearchKeyword(song.ARTIST_NAME, true)}
+		song.SONG_SEARCH_KEYWORD = []string{song.SONG_NAME, gaemonhelper.FilterSearchKeyword(song.SONG_NAME)}
+		song.ALBUM_SEARCH_KEYWORD = []string{song.ALBUM_NAME, gaemonhelper.FilterSearchKeyword(song.ALBUM_NAME)}
+		song.ARTIST_SEARCH_KEYWORD = []string{song.ARTIST_NAME, gaemonhelper.FilterSearchKeyword(song.ARTIST_NAME)}
 
 		// // append search_keyword from solr (COMMENT if dont want)
 		// if true {
@@ -63,9 +63,9 @@ func DataProcess(data map[string]interface{}) (map[string]interface{}, bool, boo
 		// }
 
 		// cleaning duplicates
-		song.SONG_SEARCH_KEYWORD = gaemonhelper.GetUniqueStrings(song.SONG_SEARCH_KEYWORD)
-		song.ALBUM_SEARCH_KEYWORD = gaemonhelper.GetUniqueStrings(song.ALBUM_SEARCH_KEYWORD)
-		song.ARTIST_SEARCH_KEYWORD = gaemonhelper.GetUniqueStrings(song.ARTIST_SEARCH_KEYWORD)
+		song.SONG_SEARCH_KEYWORD = gaemonhelper.GetUniqueStrings(song.SONG_SEARCH_KEYWORD, true)
+		song.ALBUM_SEARCH_KEYWORD = gaemonhelper.GetUniqueStrings(song.ALBUM_SEARCH_KEYWORD, true)
+		song.ARTIST_SEARCH_KEYWORD = gaemonhelper.GetUniqueStrings(song.ARTIST_SEARCH_KEYWORD, true)
 
 		song.SEARCH_KEYWORD = []string{}
 		song.SEARCH_KEYWORD = append(song.SEARCH_KEYWORD, song.SONG_SEARCH_KEYWORD...)
@@ -78,8 +78,8 @@ func DataProcess(data map[string]interface{}) (map[string]interface{}, bool, boo
 		// suggest format SONG - ARTIST | ARTIST - SONG
 		if docType == "song" {
 			song.SUGGEST_KEYWORD = []string{
-				fmt.Sprintf("%v - %v", gaemonhelper.FilterSearchKeyword(song.SONG_NAME, true), gaemonhelper.FilterSearchKeyword(song.ARTIST_NAME, true)),
-				fmt.Sprintf("%v - %v", gaemonhelper.FilterSearchKeyword(song.ARTIST_NAME, true), gaemonhelper.FilterSearchKeyword(song.SONG_NAME, true)),
+				fmt.Sprintf("%v - %v", gaemonhelper.FilterSearchKeyword(song.SONG_NAME), gaemonhelper.FilterSearchKeyword(song.ARTIST_NAME)),
+				fmt.Sprintf("%v - %v", gaemonhelper.FilterSearchKeyword(song.ARTIST_NAME), gaemonhelper.FilterSearchKeyword(song.SONG_NAME)),
 			}
 		} else if docType == "artist" {
 			song.SUGGEST_KEYWORD = []string{song.ARTIST_NAME}
